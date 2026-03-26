@@ -2,22 +2,70 @@
 
 Flox development environment for the [Temporal .NET SDK](https://github.com/temporalio/sdk-dotnet).
 
-Published to FloxHub as `flox/temporalio-dotnet`.
-
 ## Quick start
 
 ```bash
+# Clone the SDK (recursive for submodules) and activate the environment
 git clone --recursive https://github.com/temporalio/sdk-dotnet.git
 cd sdk-dotnet
 flox activate -r flox/temporalio-dotnet
+
+# Start the Temporal dev server (gRPC :7233, Web UI :8233)
 flox services start
+
+# Build the SDK
 dotnet build
+
+# Run the test suite
+dotnet test
+```
+
+## Run a sample workflow
+
+```bash
+# In a new terminal inside the activated environment
+dotnet new console -n MyTemporalApp
+cd MyTemporalApp
+dotnet add package Temporalio
+
+# Create and run a worker, then execute a workflow
+temporal workflow execute \
+  --task-queue my-task-queue \
+  --type MyWorkflow \
+  --input '"Hello"'
+
+# Open http://localhost:8233 to see the workflow in the Web UI
 ```
 
 ## What's included
 
-- .NET SDK 8
-- Temporal CLI 1.6.2 (embedded dev server + Web UI)
-- Rust toolchain (for building sdk-core C bridge)
-- Protobuf compiler (for proto regeneration)
-- Dev utilities: git, jq, curl, grpcurl, sqlite, openssl
+| Category | Packages |
+|----------|----------|
+| **Language** | .NET SDK 8 |
+| **Temporal** | temporal-cli 1.6.2 (CLI + embedded dev server + Web UI) |
+| **Rust** | rustup (for building sdk-core C bridge via Cargo) |
+| **Protobuf** | protobuf (protoc, for proto regeneration) |
+| **Utilities** | git, jq, curl, grpcurl, sqlite, openssl |
+
+## Services
+
+```bash
+flox services start     # Start Temporal dev server
+flox services status    # Check status
+flox services stop      # Stop dev server
+```
+
+The `temporal-dev` service runs `temporal server start-dev` with SQLite persistence at `$FLOX_ENV_CACHE/temporal-dev.db`. Data survives restarts.
+
+## Environment variables
+
+| Variable | Value | Purpose |
+|----------|-------|---------|
+| `TEMPORAL_ADDRESS` | `localhost:7233` | Default server address for CLI and SDK |
+| `TEMPORAL_UI_PORT` | `8233` | Web UI port |
+| `DOTNET_CLI_TELEMETRY_OPTOUT` | `1` | Disable .NET telemetry |
+| `DOTNET_NOLOGO` | `1` | Suppress .NET welcome banner |
+
+## Platforms
+
+aarch64-darwin, x86_64-darwin, x86_64-linux, aarch64-linux
