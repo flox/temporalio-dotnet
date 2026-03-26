@@ -1,0 +1,65 @@
+schema-version = "1.10.0"
+
+# ─── Core Toolchain ────────────────────────────────────────────────
+[install]
+dotnet-sdk.pkg-path = "dotnet-sdk_8"
+dotnet-sdk.pkg-group = "toolchain"
+dotnet-sdk.outputs = "all"
+
+# Temporal CLI — includes embedded dev server + Web UI
+temporal-cli.pkg-path = "flox/temporal-cli"
+temporal-cli.pkg-group = "temporal"
+temporal-cli.outputs = "all"
+temporal-cli.systems = ["aarch64-darwin"]
+
+# ─── Rust Toolchain (for building sdk-core C bridge) ───────────────
+# sdk-dotnet compiles temporalio_sdk_core_c_bridge via Cargo
+# Same sdk-core crate used by Python and TypeScript SDKs
+rustup.pkg-path = "rustup"
+rustup.pkg-group = "rust"
+rustup.outputs = "all"
+
+# ─── Protobuf Codegen ─────────────────────────────────────────────
+# README notes protoc 23.x for proto regeneration
+# "dotnet run --project src/Temporalio.Api.Generator"
+protobuf.pkg-path = "protobuf"
+protobuf.pkg-group = "codegen"
+protobuf.outputs = "all"
+
+# ─── Dev Utilities ─────────────────────────────────────────────────
+git.pkg-path = "git"
+git.outputs = "all"
+jq.pkg-path = "jq"
+jq.outputs = "all"
+curl.pkg-path = "curl"
+curl.outputs = "all"
+grpcurl.pkg-path = "grpcurl"
+grpcurl.outputs = "all"
+sqlite.pkg-path = "sqlite"
+sqlite.outputs = "all"
+openssl.pkg-path = "openssl"
+openssl.outputs = "all"
+
+# ─── Environment Variables ─────────────────────────────────────────
+[vars]
+TEMPORAL_ADDRESS = "localhost:7233"
+TEMPORAL_UI_PORT = "8233"
+DOTNET_CLI_TELEMETRY_OPTOUT = "1"
+DOTNET_NOLOGO = "1"
+
+# ─── Hook ──────────────────────────────────────────────────────────
+[hook]
+on-activate = """
+  if [ -f "$FLOX_ENV_PROJECT/Temporalio.sln" ]; then
+    cd "$FLOX_ENV_PROJECT"
+    dotnet restore --verbosity quiet 2>/dev/null || true
+  fi
+"""
+
+# ─── Services ──────────────────────────────────────────────────────
+[services.temporal-dev]
+command = "temporal server start-dev --port 7233 --ui-port 8233 --db-filename $FLOX_ENV_CACHE/temporal-dev.db"
+
+# ─── Options ───────────────────────────────────────────────────────
+[options]
+systems = ["aarch64-darwin", "x86_64-darwin", "x86_64-linux", "aarch64-linux"]
