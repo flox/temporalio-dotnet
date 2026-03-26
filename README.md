@@ -5,19 +5,16 @@ Flox development environment for the [Temporal .NET SDK](https://github.com/temp
 ## Quick start
 
 ```bash
-# Clone the SDK (recursive for submodules) and activate the environment
-git clone --recursive https://github.com/temporalio/sdk-dotnet.git
-cd sdk-dotnet
-flox activate -r flox/temporalio-dotnet
+# Clone and activate locally
+git clone https://github.com/flox/temporalio-dotnet.git
+cd temporalio-dotnet
+flox activate
 
 # Start the Temporal dev server (gRPC :7233, Web UI :8233)
 flox services start
 
-# Build the SDK
-dotnet build
-
-# Run the test suite
-dotnet test
+# Or use remotely without cloning (e.g., inside an existing project)
+# flox activate -r flox/temporalio-dotnet
 ```
 
 ## Run a sample workflow
